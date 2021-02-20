@@ -27,6 +27,7 @@ on:
 
 env:
   UPLOAD_COWTRANSFER: true
+  UPLOAD_RELEASE: true
 
 jobs:
   build:
