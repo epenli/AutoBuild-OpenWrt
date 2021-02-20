@@ -26,6 +26,9 @@ on:
   
   #watch:
   #  types: [started]
+env:
+  UPLOAD_COWTRANSFER: true
+
 
 jobs:
   build:
@@ -99,19 +102,39 @@ jobs:
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
     
-    - name: Download package
-      working-directory: ./openwrt
-      run: |
-        make download -j$(nproc)
-        find dl -size -1024c -exec ls -l {} \;
-        find dl -size -1024c -exec rm -f {} \;
-    - name: Build firmware
-      working-directory: ./openwrt
-      run: |
-        echo -e "$(nproc) thread build."
-        make -j$(nproc) V=s
+#    - name: Download package
+#      working-directory: ./openwrt
+#      run: |
+#        make download -j$(nproc)
+#        find dl -size -1024c -exec ls -l {} \;
+#        find dl -size -1024c -exec rm -f {} \;
+        
+#    - name: Build firmware
+#      working-directory: ./openwrt
+#      run: |
+#        echo -e "$(nproc) thread build."
+#        make -j$(nproc) V=s
+        
     - name : Upload artifact
       uses: actions/upload-artifact@master
       with:
         name: OpenWrt
         path: openwrt/bin
+        
+    - name: Upload firmware to cowtransfer
+      id: cowtransfer
+      if: steps.organize.outputs.status == 'success' && env.UPLOAD_COWTRANSFER == 'true' && !cancelled()
+      run: |
+        curl -fsSL git.io/file-transfer | sh
+        ./transfer cow --block 2621440 -s -p 64 --no-progress openwrt/bin 2>&1 | tee cowtransfer.log
+        echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
+        echo "::set-output name=url::$(cat cowtransfer.log | grep https | cut -f3 -d" ")"
+        
+    - name: Generate release tag
+      id: tag
+      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+      run: |
+        echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
+        touch release.txt
+        [ $UPLOAD_COWTRANSFER = true ] && echo "🔗 [Cowtransfer](${{ steps.cowtransfer.outputs.url }})" >> release.txt
+        echo "::set-output name=status::success"
