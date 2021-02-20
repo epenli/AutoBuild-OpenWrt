@@ -5,7 +5,7 @@
 # Youtube Channel: https://goo.gl/fvkdwm
 #=================================================
 
-name: Build NanoPi R2S
+name: Build x86_64
 
 on:
   workflow_dispatch:
@@ -85,9 +85,9 @@ jobs:
         run: |
           git clone https://github.com/xiaorouji/openwrt-passwall package/lienol
 
-      - name: Configuration Customization - Build_NanoPi_R2S
+      - name: Configuration Customization -> Build x86_64
         env:
-          CONFIG_FILE: "NanoPi_R2S.config"
+          CONFIG_FILE: "x86_64.config"
         run: |
           [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
           chmod +x ./customize.sh && ./customize.sh
