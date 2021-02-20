@@ -87,7 +87,7 @@ jobs:
 
       - name: Configuration Customization -> Build Redmi AC2100
         env:
-          CONFIG_FILE: "redmi_ac2100.config"
+          CONFIG_FILE: "config.Redmi-AC2100"
         run: |
           [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
           chmod +x ./customize.sh && ./customize.sh
