@@ -5,7 +5,7 @@
 # Youtube Channel: https://goo.gl/fvkdwm
 #=================================================
 
-name: Build Redmi AC2100
+name: Build Redmi AC2100 Package
 
 on:
   workflow_dispatch:
